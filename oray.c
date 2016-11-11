@@ -30,6 +30,7 @@ void mylog(char* fmt,...)
 	va_end(arglist);
 
 	printf("%s\t%s\n",timestr,buf);
+	fflush(stdout);
 }
 
 //¹¹½¨Authorization
@@ -118,7 +119,7 @@ int main(int argc,char* argv[])
 			char* respon=strstr(buffer,"\r\n\r\n");
 			if(respon) {
 				mylog(respon+4);
-				needsleep=600;
+				needsleep=1200;
 			} else {
 				mylog(buffer);
 				needsleep=300;
