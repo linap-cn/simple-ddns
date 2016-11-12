@@ -80,15 +80,18 @@ int main(int argc,char* argv[])
 		hints.ai_family=AF_INET;
 		hints.ai_socktype=SOCK_STREAM;
 		const char *hostname="ddns.oray.com";
-		if(getaddrinfo(hostname,"80",&hints,&ainfo)) {
-			mylog("getaddrinfo fail:%s",strerror(errno));
+		int ret=getaddrinfo(hostname,"80",&hints,&ainfo);
+		if(ret) {
+			mylog("getaddrinfo fail:%s",gai_strerror(ret));
 			needsleep=5;
 			continue;
 		}
 		if(!ainfo||!ainfo->ai_addr) {
 			mylog("getaddrinfo got nothing:%s",strerror(errno));
 			needsleep=5;
-			freeaddrinfo(ainfo);
+			if(ainfo){
+				freeaddrinfo(ainfo);
+			}
 			continue;
 		}
 		int sockfd = socket(AF_INET,SOCK_STREAM,0);
