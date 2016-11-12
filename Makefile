@@ -4,7 +4,9 @@ all: oray.c base64.o
 
 base64.o: base64.c
 	$(CC) $(CFLAGS) -c $^
-	
+
+install:
+	sh install-sh
 clean:
 	@rm -f *.o
 	@rm oray
