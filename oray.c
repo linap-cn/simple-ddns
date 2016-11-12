@@ -6,7 +6,8 @@
 #include <netdb.h>
 #include <errno.h>
 #include <time.h>
-#include <stdarg.h> 
+#include <stdarg.h>
+#include <resolv.h>
 #include "base64.h"
 
 void usage()
@@ -83,6 +84,7 @@ int main(int argc,char* argv[])
 		int ret=getaddrinfo(hostname,"80",&hints,&ainfo);
 		if(ret) {
 			mylog("getaddrinfo fail:%s",gai_strerror(ret));
+			res_init();//ÖØĞÂ¶ÁÈ¡resolv.conf
 			needsleep=5;
 			continue;
 		}
