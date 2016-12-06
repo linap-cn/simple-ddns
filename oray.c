@@ -2,12 +2,19 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#ifdef WIN32
+#define _WIN32_WINNT 0x0501
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#define close(a) closesocket(a)
+#else
 #include <sys/socket.h>
 #include <netdb.h>
+#include <resolv.h>
+#endif
 #include <errno.h>
 #include <time.h>
 #include <stdarg.h>
-#include <resolv.h>
 #include "base64.h"
 
 void usage()
@@ -48,11 +55,24 @@ void makeAuth(char* username,char* passwd,char* inOut)
 
 int main(int argc,char* argv[])
 {
+#ifdef WIN32
+	{
+		WORD wVersionRequested;
+		WSADATA wsaData;
+		int err;
+		wVersionRequested = MAKEWORD( 2, 0 );
+		err = WSAStartup( wVersionRequested, &wsaData );
+		if ( err != 0 ) {
+			exit(err);
+		}
+	}
+#endif
+
 	char request[512];
 	if(argc<3) {
 		usage();
 		return 1;
-	}else{
+	} else {
 		//构建http请求
 		char auth[128];
 		makeAuth(argv[1],argv[2],auth);
@@ -62,10 +82,10 @@ int main(int argc,char* argv[])
 		const char *host="Host: ddns.oray.com";
 
 		snprintf(request,512,"%s\r\n%s\r\n%s\r\n%s\r\n\r\n",
-				 req,
-				 host,
-				 auth,
-				 agent);
+		         req,
+		         host,
+		         auth,
+		         agent);
 	}
 	int requestlen=strlen(request);
 
@@ -84,14 +104,16 @@ int main(int argc,char* argv[])
 		int ret=getaddrinfo(hostname,"80",&hints,&ainfo);
 		if(ret) {
 			mylog("getaddrinfo fail:%s",gai_strerror(ret));
+#ifndef WIN32
 			res_init();//重新读取resolv.conf
+#endif
 			needsleep=5;
 			continue;
 		}
 		if(!ainfo||!ainfo->ai_addr) {
 			mylog("getaddrinfo got nothing:%s",strerror(errno));
 			needsleep=5;
-			if(ainfo){
+			if(ainfo) {
 				freeaddrinfo(ainfo);
 			}
 			continue;

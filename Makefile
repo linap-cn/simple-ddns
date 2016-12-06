@@ -10,3 +10,7 @@ install:
 clean:
 	@rm -f *.o
 	@rm oray
+	
+win: oray.c base64.o
+	$(CC) $(CFLAGS) $^ -o oray -lws2_32
+	
