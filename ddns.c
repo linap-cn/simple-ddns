@@ -108,6 +108,7 @@ int parse_configfile(const char* configfile)
 			}
 		}
 	}
+	fclose(fp);
 	return 0;
 }
 void dumpconfig(){
