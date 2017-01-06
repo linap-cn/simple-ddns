@@ -1,11 +1,10 @@
 [Unit]
-Description=Oray ddns service
+Description=Ddns service
 After=network.target
 
 [Service]
 Type=simple
-EnvironmentFile=/etc/oray.conf
-ExecStart=/usr/bin/oray $USER $PASS
+ExecStart=/usr/bin/ddns -f /etc/ddns.conf
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 ExecStop=/bin/kill $MAINPID
