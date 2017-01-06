@@ -1,13 +1,13 @@
 #! /bin/sh
-cp oray /usr/bin/
-chown root.root /usr/bin/oray
-chmod 755 /usr/bin/oray
-cp conf/oray.service /usr/lib/systemd/system/
-chown root.root /usr/lib/systemd/system/oray.service
-chmod 644 /usr/lib/systemd/system/oray.service
-if [ ! -f "/etc/oray.conf" ]; then
-	cp conf/oray.conf /etc/
-	chown root.root /etc/oray.conf
-	chmod 644 /etc/oray.conf
+cp ddns /usr/bin/
+chown root.root /usr/bin/ddns
+chmod 755 /usr/bin/ddns
+cp conf/ddns.service /usr/lib/systemd/system/
+chown root.root /usr/lib/systemd/system/ddns.service
+chmod 644 /usr/lib/systemd/system/ddns.service
+if [ ! -f "/etc/ddns.conf" ]; then
+	cp conf/ddns.conf /etc/
+	chown root.root /etc/ddns.conf
+	chmod 644 /etc/ddns.conf
 fi
 systemctl daemon-reload
