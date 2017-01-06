@@ -10,3 +10,7 @@ install:
 clean:
 	@rm -f *.o
 	@rm ddns
+	
+win: ddns.c base64.o
+	$(CC) $(CFLAGS) $^ -o ddns -lws2_32
+	
