@@ -1,5 +1,20 @@
-# oray-ddns
-花生壳简单的linux下c语言实现，默认调整为本地ip，账号下所有域名  
-用法：./oray 用户名 密码  
-如果是systemd，可以使用# make install自动设置为service，修改配置文件/etc/oray.conf，通过# systemctl start oray启动  
-或者使用启动脚本$ ./oray.sh
+# Simple-ddns
+## 简介 ##
+c语言实现的通用动态域名更新程序。
+-------------
+## 用法 ##
+Usage: ddns [options]  
+  -f  --config file     Read config from file.  
+  -h  --help            Display this usage information.  
+  -u  --user username   User Name to login.  
+  -p  --pass password   Password to login.  
+  -H  --host hostname   Hostname of the ddns server.  
+  -U  --url url         Url without hostname to send get request.  
+  -t  --time [s]        Optional. Time between two request. Default:900.  
+  -A  --agent [s]       Optional. User-Agent. Default:ddnsv0.1.  
+
+  如果是systemd，可以使用# make install自动设置为service，修改配置文件/etc/ddns.conf，通过# systemctl start ddns启动
+-------------
+## TODO： ##
+1.  配置文件中可以替换[ip][user][pass]等参数。
+2.  兼容其他版本系统的install-sh
