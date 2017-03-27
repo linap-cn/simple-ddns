@@ -266,6 +266,11 @@ int main(int argc,char* argv[])
 			freeaddrinfo(ainfo);
 			continue;
 		}
+		struct timeval tv_out;
+		tv_out.tv_sec = 10;
+		tv_out.tv_usec = 0;
+		setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv_out, sizeof(tv_out));
+		setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv_out, sizeof(tv_out));
 		if(connect(sockfd,ainfo->ai_addr, ainfo->ai_addrlen) < 0) {
 			mylog("connect fail:%s",strerror(errno));
 			needsleep=5;
