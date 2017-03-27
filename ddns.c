@@ -53,28 +53,28 @@ void mylog(char* fmt,...)
 void print_usage()
 {
 	fprintf(stderr, "Usage: %s [options]\n",
-	        g_programname);
+			g_programname);
 	fprintf(stderr,
-	        "  -f  --config file\tRead config from file.\n"
-	        "  -h  --help\t\tDisplay this usage information.\n"
-	        "  -u  --user username\tUser Name to login.\n"
-	        "  -p  --pass password\tPassword to login.\n"
-	        "  -H  --host hostname\tHostname of the ddns server.\n"
-	        "  -U  --url url\t\tUrl without hostname to send get request.\n"
-	        "  -t  --time [s]\tOptional. Time between two request. Default:900.\n"
-	        "  -A  --agent [s]\tOptional. User-Agent. Default:ddnsv%s.\n",VERSION
-	       );
+			"  -f  --config file\tRead config from file.\n"
+			"  -h  --help\t\tDisplay this usage information.\n"
+			"  -u  --user username\tUser Name to login.\n"
+			"  -p  --pass password\tPassword to login.\n"
+			"  -H  --host hostname\tHostname of the ddns server.\n"
+			"  -U  --url url\t\tUrl without hostname to send get request.\n"
+			"  -t  --time [s]\tOptional. Time between two request. Default:900.\n"
+			"  -A  --agent [s]\tOptional. User-Agent. Default:ddnsv%s.\n",VERSION
+		   );
 }
 
 void rtrim(char *str)
 {
 	char *c = str + strlen(str) - 1;
-    while (c>str && (*c=='\n' || *c==' ' || *c=='\r')) {
-        *c = '\0';
-        --c;
-    }
-    if(c == str)     //此处
-        *c = '\0';
+	while (c>str && (*c=='\n' || *c==' ' || *c=='\r')) {
+		*c = '\0';
+		--c;
+	}
+	if(c == str)	 //此处
+		*c = '\0';
 }
 int parse_configfile(const char* configfile)
 {
@@ -108,6 +108,7 @@ int parse_configfile(const char* configfile)
 			}
 		}
 	}
+	fclose(fp);
 	return 0;
 }
 void dumpconfig(){
@@ -129,13 +130,14 @@ int readargs(int argc,char* argv[])
 		{"host",1,NULL,'H'},
 		{"url",1,NULL,'U'},
 		{"time",1,NULL,'t'},
+		{"agent",1,NULL,'A'},
 		{NULL,0,NULL,0}
 	};
 	g_option.time=900;
 	snprintf(g_option.agent,128,"ddnsv%s",VERSION);
 	do {
 		next_option = getopt_long (argc, argv, short_option,
-		                           long_option, NULL);
+								   long_option, NULL);
 		switch (next_option) {
 		case 'h':
 			print_usage();
@@ -177,14 +179,22 @@ int readargs(int argc,char* argv[])
 		}
 	} while (next_option != -1);
 	//dumpconfig();
+	if(!g_option.host[0]){
+		print_usage();
+		return 22;
+	}
+	if(!g_option.url[0]){
+		g_option.url[0]='/';
+		g_option.url[1]=0;
+	}
 	return 0;
 }
 
 //构建Authorization
 void makeAuth(char* username,char* passwd,char* inOut)
 {
-	char buf[64];
-	snprintf(buf,240,"%s:%s",username,passwd);
+	char buf[128];
+	snprintf(buf,128,"%s:%s",username,passwd);
 	strcpy(inOut,"Authorization: Basic ");
 	char* result=b64_encode(buf,strlen(buf));
 	strcat(inOut,result);
@@ -193,6 +203,7 @@ void makeAuth(char* username,char* passwd,char* inOut)
 
 int main(int argc,char* argv[])
 {
+	memset(&g_option,0,sizeof(DDNS_OPTION));
 	g_programname = argv[0];
 	int ret=readargs(argc,argv);
 	if(ret) {
@@ -212,6 +223,7 @@ int main(int argc,char* argv[])
 #endif
 
 	char request[512];
+	if(g_option.user[0])//if need auth
 	{
 		//构建http请求
 		char auth[128];
@@ -222,11 +234,22 @@ int main(int argc,char* argv[])
 		const char *host="Host: %s";
 		char temp[512];
 		snprintf(temp,512,"%s\r\n%s\r\n%s\r\n%s\r\n\r\n",
-		         req,
-		         host,
-		         auth,
-		         agent);
+				 req,
+				 host,
+				 auth,
+				 agent);
 		snprintf(request,512,temp,g_option.url,g_option.host,g_option.agent);
+	}else{
+		const char *req="GET %s HTTP/1.0";
+		const char *agent="User-Agent: %s";
+		const char *host="Host: %s";
+		char temp[512];
+		snprintf(temp,512,"%s\r\n%s\r\n%s\r\n\r\n",
+				 req,
+				 host,
+				 agent);
+		snprintf(request,512,temp,g_option.url,g_option.host,g_option.agent);
+
 	}
 	int requestlen=strlen(request);
 	//printf("%s\n",request);

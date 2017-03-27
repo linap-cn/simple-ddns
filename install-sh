@@ -1,13 +1,11 @@
 #! /bin/sh
-cp ddns /usr/bin/
-chown root.root /usr/bin/ddns
-chmod 755 /usr/bin/ddns
-cp conf/ddns.service /usr/lib/systemd/system/
-chown root.root /usr/lib/systemd/system/ddns.service
-chmod 644 /usr/lib/systemd/system/ddns.service
-if [ ! -f "/etc/ddns.conf" ]; then
-	cp conf/ddns.conf /etc/
-	chown root.root /etc/ddns.conf
-	chmod 644 /etc/ddns.conf
+if [ "$UID" -eq "0" ]; then
+	install -v -m 0755 ddns /usr/bin/
+	install -v -m 0644 conf/ddns.service /usr/lib/systemd/system/
+	if [ ! -f "/etc/ddns.conf" ]; then
+	install -v -m 0644 conf/ddns.conf /etc/
+	fi
+	systemctl daemon-reload
+else
+	echo "you must run as root"
 fi
-systemctl daemon-reload
